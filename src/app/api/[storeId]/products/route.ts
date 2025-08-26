@@ -4,9 +4,10 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { storeId: string } },
+  { params }: { params: Promise<{ storeId: string }> },
 ) {
   try {
+    const { storeId } = await params;
     const { userId } = await auth();
     const body = await req.json();
 
@@ -49,13 +50,13 @@ export async function POST(
       return new NextResponse("Images are required", { status: 400 });
     }
 
-    if (!params.storeId) {
+    if (!storeId) {
       return new NextResponse("StoreId is required", { status: 400 });
     }
 
     const storeByUserId = await prismadb.store.findFirst({
       where: {
-        id: params.storeId,
+        id: storeId,
         userId,
       },
     });
@@ -73,7 +74,7 @@ export async function POST(
         sizeId,
         isFeatured,
         isArchived,
-        storeId: params.storeId,
+        storeId: storeId,
         images: {
           createMany: {
             data: images.map((image: { url: string }) => ({
@@ -93,22 +94,23 @@ export async function POST(
 
 export async function GET(
   req: Request,
-  { params }: { params: { storeId: string } },
+  { params }: { params: Promise<{ storeId: string }> },
 ) {
   try {
+    const { storeId } = await params;
     const { searchParams } = new URL(req.url);
     const categoryId = searchParams.get("categoryId") || undefined;
     const colorId = searchParams.get("colorId") || undefined;
     const sizeId = searchParams.get("sizeId") || undefined;
     const isFeatured = searchParams.get("isFeatured");
 
-    if (!params.storeId) {
+    if (!storeId) {
       return new NextResponse("StoreId is required", { status: 400 });
     }
 
     const product = await prismadb.product.findMany({
       where: {
-        storeId: params.storeId,
+        storeId: storeId,
         categoryId,
         colorId,
         sizeId,

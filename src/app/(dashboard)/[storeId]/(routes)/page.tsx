@@ -9,15 +9,16 @@ import { getSalesCount } from "@/actions/get-sales-count";
 import { getStoreCount } from "@/actions/get-store-count";
 import { getGraphRevenue } from "@/actions/get-graph-revenue";
 
-interface DashboardPageProps {
-  params: { storeId: string };
-}
-
-const DashboardPage = async ({ params }: DashboardPageProps) => {
-  const totalRevenue = await getTotalRevenue(params.storeId);
-  const salesCount = await getSalesCount(params.storeId);
-  const storeCount = await getStoreCount(params.storeId);
-  const graphRevenue = await getGraphRevenue(params.storeId);
+const DashboardPage = async ({
+  params,
+}: {
+  params: Promise<{ storeId: string }>;
+}) => {
+  const { storeId } = await params;
+  const totalRevenue = await getTotalRevenue(storeId);
+  const salesCount = await getSalesCount(storeId);
+  const storeCount = await getStoreCount(storeId);
+  const graphRevenue = await getGraphRevenue(storeId);
 
   return (
     <div className="flex-col">
